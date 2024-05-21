@@ -28,11 +28,28 @@ const createProduct = async (req: Request, res: Response) => {
 
 const getProducts = async (req: Request, res: Response) => {
   try {
-    const products = await ProductModel.find()
+    const { searchTerm } = req.query
+
+    let query = {}
+    if (searchTerm) {
+      query = {
+        $or: [
+          { name: { $regex: searchTerm, $options: 'i' } },
+          { description: { $regex: searchTerm, $options: 'i' } },
+          { category: { $regex: searchTerm, $options: 'i' } }
+        ]
+      }
+    }
+
+    const products = await ProductModel.find(query)
+
+    const message = searchTerm
+      ? `Products matching search term ${searchTerm} fetched successfully!`
+      : 'Products fetched successfully!'
 
     return res.status(200).json({
       success: true,
-      message: 'Products fetched successfully!',
+      message,
       data: products
     })
   } catch (error) {

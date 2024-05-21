@@ -3,8 +3,17 @@ import { validateData } from '../../middleware/validationMiddleware'
 import { productController } from './product.controller'
 import { productValidationSchema } from './product.validationSchema'
 
-const ProductRoute = express.Router()
+const router = express.Router()
 
-ProductRoute.route('/').post(validateData(productValidationSchema), productController.createProduct)
+router
+  .route('/')
+  .get(productController.getProducts)
+  .post(validateData(productValidationSchema), productController.createProduct)
 
-export { ProductRoute }
+router
+  .route('/:productId')
+  .get(productController.getProduct)
+  .put(productController.updateProduct)
+  .delete(productController.deleteProduct)
+
+export default router

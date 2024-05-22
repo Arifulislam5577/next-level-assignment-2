@@ -1,9 +1,10 @@
 import { isValidObjectId } from 'mongoose'
 import ProductModel from '../product/product.model'
-import { TOrder } from './order.interface'
+import { CreateOrderData, GetOrdersData, TOrder } from './order.interface'
 import OrderModel from './order.model'
 
-export const createOrderService = async (data: TOrder) => {
+// CREATE ORDER
+export const createOrderService = async (data: TOrder): Promise<CreateOrderData> => {
   const { productId, quantity } = data
 
   if (!isValidObjectId(productId)) {
@@ -49,5 +50,44 @@ export const createOrderService = async (data: TOrder) => {
     status: 200,
     message: 'Order created successfully!',
     data: order
+  }
+}
+
+// GET ORDERS
+export const getOrdersService = async (email?: string): Promise<GetOrdersData> => {
+  try {
+    let query = {}
+    if (email) {
+      query = {
+        $or: [{ email: { $regex: email, $options: 'i' } }]
+      }
+    }
+
+    const orders = await OrderModel.find(query)
+
+    let message = ''
+
+    if (!email && orders?.length) {
+      message = 'Orders fetched successfully!'
+    } else if (email && orders?.length) {
+      message = `Orders fetched successfully for user email!`
+    } else {
+      message = 'Order not found'
+    }
+
+    return {
+      success: true,
+      status: 200,
+      message,
+      data: orders
+    }
+  } catch (error) {
+    console.log(error)
+    return {
+      success: false,
+      status: 500,
+      message: 'Internal server error',
+      data: null
+    }
   }
 }

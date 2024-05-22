@@ -5,6 +5,6 @@ import { orderValidationSchema } from './order.validationSchema'
 
 const router = express.Router()
 
-router.route('/').post(validateData(orderValidationSchema), orderController.createOrder)
+router.route('/').get(orderController.getOrders).post(validateData(orderValidationSchema), orderController.createOrder)
 
 export default router

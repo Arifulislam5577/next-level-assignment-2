@@ -56,6 +56,29 @@ const createOrder = async (req: Request, res: Response) => {
   }
 }
 
+// METHOD : GET
+// ROUTE : /api/orders
+
+const getOrders = async (req: Request, res: Response) => {
+  try {
+    const orders = await OrderModel.find()
+    const message = 'Orders fetched successfully!'
+
+    return res.status(200).json({
+      success: true,
+      message,
+      data: orders
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error,
+      data: null
+    })
+  }
+}
+
 export const orderController = {
-  createOrder
+  createOrder,
+  getOrders
 }

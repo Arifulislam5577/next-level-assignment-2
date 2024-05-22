@@ -61,8 +61,17 @@ const createOrder = async (req: Request, res: Response) => {
 
 const getOrders = async (req: Request, res: Response) => {
   try {
-    const orders = await OrderModel.find()
-    const message = 'Orders fetched successfully!'
+    const { email } = req.query
+
+    let query = {}
+    if (email) {
+      query = {
+        $or: [{ email: { $regex: email, $options: 'i' } }]
+      }
+    }
+
+    const orders = await OrderModel.find(query)
+    const message = email ? `Orders fetched successfully for user email!` : 'Orders fetched successfully!'
 
     return res.status(200).json({
       success: true,

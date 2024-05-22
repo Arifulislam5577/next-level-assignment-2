@@ -1,59 +1,17 @@
 import { Request, Response } from 'express'
-import { isValidObjectId } from 'mongoose'
-import ProductModel from '../product/product.model'
 import OrderModel from './order.model'
+import { createOrderService } from './order.service'
 
 // METHOD : POST
 // ROUTE : /api/orders
 const createOrder = async (req: Request, res: Response) => {
-  const { productId, quantity } = req.body
+  const result = await createOrderService(req.body)
 
-  if (!isValidObjectId(productId)) {
-    return res.status(400).json({
-      success: false,
-      message: 'Invalid Product Id',
-      data: null
-    })
-  }
-
-  try {
-    const product = await ProductModel.findById(productId)
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: 'Product not found',
-        data: null
-      })
-    }
-
-    if (!product.inventory?.inStock || product.inventory.quantity < quantity) {
-      return res.status(400).json({
-        success: false,
-        message: 'Insufficient quantity available in inventory',
-        data: null
-      })
-    }
-
-    const order = await OrderModel.create(req.body)
-    await ProductModel.findByIdAndUpdate(productId, {
-      $inc: { 'inventory.quantity': -quantity },
-      $set: { 'inventory.inStock': product.inventory.quantity - quantity <= 0 ? false : true }
-    })
-
-    return res.status(200).json({
-      success: true,
-      message: 'Order created successfully!',
-      data: order
-    })
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: error,
-      data: null
-    })
-  }
+  return res.status(result.status).json({
+    success: result.success,
+    message: result.message,
+    data: result.data
+  })
 }
 
 // METHOD : GET
@@ -71,8 +29,17 @@ const getOrders = async (req: Request, res: Response) => {
     }
 
     const orders = await OrderModel.find(query)
-    const message = email ? `Orders fetched successfully for user email!` : 'Orders fetched successfully!'
 
+    let message = ''
+
+    if (!email && orders?.length) {
+      message = 'Orders fetched successfully!'
+    } else if (email && orders?.length) {
+      message = `Orders fetched successfully for user email!`
+    } else {
+      message = 'Order not found'
+    }
+    // Order not found Orders fetched successfully!
     return res.status(200).json({
       success: true,
       message,

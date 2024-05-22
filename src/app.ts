@@ -6,7 +6,7 @@ const app: Application = express()
 
 app.use(express.json())
 app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!')
+  res.json('Hello World!')
 })
 
 app.use('/api/products', productRoutes)

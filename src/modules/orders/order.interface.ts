@@ -5,14 +5,14 @@ export interface TOrder {
   quantity: number
 }
 
-export interface GetOrdersData {
+export interface TGetOrdersData {
   success: boolean
   status: number
   message: string
   data: Array<TOrder> | null
 }
 
-export interface CreateOrderData {
+export interface TCreateOrderData {
   success: boolean
   status: number
   message: string

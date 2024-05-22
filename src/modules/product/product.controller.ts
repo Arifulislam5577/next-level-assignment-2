@@ -1,13 +1,14 @@
 import { Request, Response } from 'express'
+import { TGetProductsData } from './product.interface'
 import ProductModel from './product.model'
+import { getProductsService } from './product.service'
 
 // METHOD : POST
 // ROUTE : /api/products
 
 const createProduct = async (req: Request, res: Response) => {
-  const productData = req.body
   try {
-    const createdProduct = await ProductModel.create(productData)
+    const createdProduct = await ProductModel.create(req.body)
 
     return res.status(200).json({
       success: true,
@@ -27,38 +28,15 @@ const createProduct = async (req: Request, res: Response) => {
 // ROUTE : /api/products
 
 const getProducts = async (req: Request, res: Response) => {
-  try {
-    const { searchTerm } = req.query
+  const { searchTerm } = req.query
 
-    let query = {}
-    if (searchTerm) {
-      query = {
-        $or: [
-          { name: { $regex: searchTerm, $options: 'i' } },
-          { description: { $regex: searchTerm, $options: 'i' } },
-          { category: { $regex: searchTerm, $options: 'i' } }
-        ]
-      }
-    }
+  const result: TGetProductsData = await getProductsService(searchTerm as string)
 
-    const products = await ProductModel.find(query)
-
-    const message = searchTerm
-      ? `Products matching search term ${searchTerm} fetched successfully!`
-      : 'Products fetched successfully!'
-
-    return res.status(200).json({
-      success: true,
-      message,
-      data: products
-    })
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: error,
-      data: null
-    })
-  }
+  return res.status(result.status).json({
+    success: result.success,
+    message: result.message,
+    data: result.data
+  })
 }
 
 // METHOD : GET

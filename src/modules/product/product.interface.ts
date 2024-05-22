@@ -17,3 +17,10 @@ export interface TProduct {
   variants: TVariant[]
   inventory: TInventory
 }
+
+export interface TGetProductsData {
+  success: boolean
+  status: number
+  message: string
+  data: Array<TProduct> | null
+}

@@ -1,10 +1,10 @@
 import { isValidObjectId } from 'mongoose'
 import ProductModel from '../product/product.model'
-import { CreateOrderData, GetOrdersData, TOrder } from './order.interface'
+import { TCreateOrderData, TGetOrdersData, TOrder } from './order.interface'
 import OrderModel from './order.model'
 
 // CREATE ORDER
-export const createOrderService = async (data: TOrder): Promise<CreateOrderData> => {
+export const createOrderService = async (data: TOrder): Promise<TCreateOrderData> => {
   const { productId, quantity } = data
 
   if (!isValidObjectId(productId)) {
@@ -54,7 +54,7 @@ export const createOrderService = async (data: TOrder): Promise<CreateOrderData>
 }
 
 // GET ORDERS
-export const getOrdersService = async (email?: string): Promise<GetOrdersData> => {
+export const getOrdersService = async (email?: string): Promise<TGetOrdersData> => {
   try {
     let query = {}
     if (email) {
@@ -76,8 +76,8 @@ export const getOrdersService = async (email?: string): Promise<GetOrdersData> =
     }
 
     return {
-      success: true,
-      status: 200,
+      success: orders?.length ? true : false,
+      status: orders?.length ? 200 : 404,
       message,
       data: orders
     }

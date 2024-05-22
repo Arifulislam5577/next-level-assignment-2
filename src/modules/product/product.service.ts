@@ -27,6 +27,7 @@ export const getProductsService = async (searchTerm?: string): Promise<TGetProdu
       data: products
     }
   } catch (error) {
+    console.log(error)
     return {
       success: false,
       status: 500,
